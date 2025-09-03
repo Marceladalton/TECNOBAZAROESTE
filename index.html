@@ -1,84 +1,80 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>TecnoBazar Oeste</title>
-    <meta name="description" content="Tecnología y bazar al mejor precio" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>html,body,#root{height:100%}</style>
-  </head>
-  <body class="bg-white text-neutral-900">
-    <div id="root"></div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TecnoBazar Oeste</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .container{max-width:1100px;margin:0 auto}
+    .grid{display:grid;gap:20px}
+    @media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:1024px){.grid{grid-template-columns:repeat(3,1fr)}}
+    .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none}
+    .drawer{position:fixed;top:0;right:0;height:100%;width:100%;max-width:380px;background:#fff;box-shadow:-10px 0 30px rgba(0,0,0,.2);display:none;flex-direction:column}
+    .show{display:flex}
+  </style>
+</head>
+<body class="bg-white text-neutral-900">
+  <!-- Header -->
+  <header class="sticky top-0 z-10 bg-white/90 backdrop-blur border-b">
+    <div class="container px-4 py-3 flex items-center gap-2">
+      <div class="font-extrabold text-lg">TecnoBazar Oeste</div>
+      <a class="ml-auto px-3 py-2 rounded-xl border text-sm" href="https://www.instagram.com/tecnobazar.oeste" target="_blank" rel="noreferrer">Instagram</a>
+      <a class="px-3 py-2 rounded-xl border text-sm" href="https://wa.me/5491154237871" target="_blank" rel="noreferrer">WhatsApp</a>
+      <button id="btn-cart" class="relative px-3 py-2 rounded-xl bg-black text-white text-sm">
+        Ver carrito <span id="cart-badge" class="hidden absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center">0</span>
+      </button>
+    </div>
+  </header>
 
-    <!-- React + ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Hero -->
+  <section class="bg-gradient-to-br from-orange-50 to-white border-b">
+    <div class="container px-4 py-10 grid gap-6 md:grid-cols-2 items-center">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-extrabold leading-tight">Tecnología y bazar al mejor precio</h1>
+        <p class="mt-3 text-neutral-600">Elegí tus productos, agregalos al carrito y confirmá por WhatsApp. Pagá por Transferencia o Mercado Pago.</p>
+      </div>
+      <div class="rounded-2xl border p-4 bg-white/70">
+        <div class="h-40 rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center text-white text-2xl font-extrabold tracking-wider">TECNOBAZAR OESTE</div>
+      </div>
+    </div>
+  </section>
 
-    <script type="text/babel">
-      const { useState, useMemo } = React;
+  <!-- Catálogo -->
+  <main class="container px-4 py-8">
+    <div id="products" class="grid"></div>
+  </main>
 
-      const CURRENCY = (n) =>
-        new Intl.NumberFormat("es-AR", {
-          style: "currency",
-          currency: "ARS",
-          maximumFractionDigits: 0
-        }).format(n);
+  <!-- Drawer Carrito -->
+  <div id="backdrop" class="backdrop"></div>
+  <div id="drawer" class="drawer">
+    <div class="p-4 border-b flex items-center">
+      <div class="font-bold text-lg">Carrito</div>
+      <button id="btn-close" class="ml-auto px-3 py-1 rounded-lg border text-sm">Cerrar</button>
+    </div>
+    <div id="cart-list" class="flex-1 overflow-auto divide-y"></div>
+    <div class="p-4 border-t">
+      <div class="flex items-center">
+        <div class="text-neutral-500">Total</div>
+        <div id="cart-total" class="ml-auto font-bold text-xl">$0</div>
+      </div>
+      <button id="btn-confirm" class="mt-3 w-full px-3 py-2 rounded-xl bg-black text-white disabled:opacity-40" disabled>Confirmar por WhatsApp</button>
+    </div>
+  </div>
 
-      const PRODUCTS = [
-        { id: "parlante-manija", name: "Parlante con manija", price: 15900, category: "Audio", image: "https://placehold.co/600x400?text=Parlante+con+manija" },
-        { id: "parlante-pileta", name: "Parlante con sopapa (pileta/baño)", price: 8000, category: "Audio", image: "https://placehold.co/600x400?text=Parlante+para+pileta" },
-        { id: "auriculares-bear", name: "Auriculares C-009 Bear", price: 12000, category: "Audio", image: "https://placehold.co/600x400?text=Auriculares+Bear" }
-      ];
+  <footer class="mt-12 border-t">
+    <div class="container px-4 py-8">
+      <div class="font-extrabold">TecnoBazar Oeste</div>
+    </div>
+    <div class="text-center text-xs text-neutral-500 py-4">© <span id="year"></span> TecnoBazar Oeste</div>
+  </footer>
 
-      function App() {
-        const [cart, setCart] = useState([]);
-        const total = useMemo(() => cart.reduce((s, i) => s + i.price * i.qty, 0), [cart]);
+  <script>
+    const CURRENCY = n => new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(n);
 
-        function add(p) {
-          setCart(prev => {
-            const item = prev.find(x => x.id === p.id);
-            if (item) return prev.map(x => x.id === p.id ? { ...x, qty: x.qty + 1 } : x);
-            return [...prev, { ...p, qty: 1 }];
-          });
-        }
-
-        function confirm() {
-          const msg = "Hola! Quiero pedir: " + cart.map(i => ${i.qty}x ${i.name}).join(", ") + ". Total: " + CURRENCY(total);
-          const url = "https://wa.me/5491154237871?text=" + encodeURIComponent(msg);
-          window.open(url, "_blank");
-        }
-
-        return (
-          <div>
-            <header className="sticky top-0 bg-white border-b p-4 flex gap-2 items-center">
-              <h1 className="font-bold text-xl">TecnoBazar Oeste</h1>
-              <a className="ml-auto px-3 py-1 rounded-xl border" href="https://www.instagram.com/tecnobazar.oeste" target="_blank">Instagram</a>
-              <a className="px-3 py-1 rounded-xl border" href="https://wa.me/5491154237871" target="_blank">WhatsApp</a>
-              <button onClick={confirm} className="px-3 py-1 rounded-xl bg-black text-white">Ver carrito ({cart.reduce((s,i)=>s+i.qty,0)})</button>
-            </header>
-
-            <main className="max-w-5xl mx-auto p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {PRODUCTS.map(p => (
-                <div key={p.id} className="border rounded-xl overflow-hidden">
-                  <img src={p.image} alt={p.name} className="w-full h-48 object-cover" />
-                  <div className="p-4">
-                    <div className="text-sm text-neutral-500">{p.category}</div>
-                    <div className="font-bold">{p.name}</div>
-                    <div className="text-lg">{CURRENCY(p.price)}</div>
-                    <button onClick={() => add(p)} className="mt-2 w-full py-1 rounded-lg bg-orange-500 text-white">Agregar</button>
-                  </div>
-                </div>
-              ))}
-            </main>
-
-            {cart.length > 0 && (
-              <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex items-center">
-                <div className="font-bold">Total: {CURRENCY(total)}</div>
-                <button onClick={confirm} className="ml-auto px-4 py-2 rounded-xl bg-black text-white">Confirmar por WhatsApp</button>
-              </div>
-            )}
-          </div>
-        );
-      }
+    // Productos (cambiá nombre/precio cuando quieras)
+    const PRODUCTS = [
+      { id:"parlante-manija",   name:"Parlante con manija",                    price:15900, category:"Audio", image:"https://placehold.co/600x400?text=Parlante+con+manija" },
+      { id:"parlante-pileta",   name:"Parlante con sopapa (pileta/baño)",     price:8000,  category:"Audio", image:"https://placehold.co/600x400?text=Parlante+para+pileta" },
+      { id:"auriculares-bea
