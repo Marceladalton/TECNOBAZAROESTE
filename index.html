@@ -1,9 +1,93 @@
 <!doctype html>
-<html>
-  <head><meta charset="utf-8"><title>Prueba TecnoBazar</title></head>
-  <body>
-    <h1>Funciona la página</h1>
-    <p>Si ves este texto, está todo bien.</p>
-  </body>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TecnoBazar Oeste</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .container{max-width:1100px;margin:0 auto}
+    .grid{display:grid;gap:20px}
+    @media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:1024px){.grid{grid-template-columns:repeat(3,1fr)}}
+    .hidden{display:none}
+  </style>
+</head>
+<body class="bg-white text-neutral-900">
+  <!-- Header -->
+  <header class="sticky top-0 bg-white border-b p-4 flex gap-2 items-center">
+    <h1 class="font-bold text-lg">TecnoBazar Oeste</h1>
+    <a href="https://www.instagram.com/tecnobazar.oeste" target="_blank" class="ml-auto px-3 py-1 border rounded-lg">Instagram</a>
+    <a href="https://wa.me/5491154237871" target="_blank" class="px-3 py-1 border rounded-lg">WhatsApp</a>
+    <button id="btn-cart" class="px-3 py-1 bg-black text-white rounded-lg">Carrito (0)</button>
+  </header>
+
+  <!-- Catálogo -->
+  <main class="container p-6">
+    <div id="products" class="grid"></div>
+  </main>
+
+  <!-- Carrito -->
+  <div id="cart" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 hidden">
+    <div id="cart-items" class="text-sm"></div>
+    <div class="flex items-center mt-2">
+      <div id="cart-total" class="font-bold text-lg"></div>
+      <button id="btn-confirm" class="ml-auto px-3 py-1 bg-green-600 text-white rounded-lg">Confirmar por WhatsApp</button>
+    </div>
+  </div>
+
+  <script>
+    const CURRENCY = n => new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(n);
+
+    const PRODUCTS = [
+      { id:"p1", name:"Parlante con manija", price:15900, image:"https://placehold.co/300x200?text=Parlante+manija" },
+      { id:"p2", name:"Parlante pileta/baño", price:8000, image:"https://placehold.co/300x200?text=Parlante+pileta" },
+      { id:"p3", name:"Auriculares Bear C-009", price:12000, image:"https://placehold.co/300x200?text=Auriculares+Bear" }
+    ];
+
+    const cart = [];
+    const elProducts = document.getElementById("products");
+    const elCart = document.getElementById("cart");
+    const elCartItems = document.getElementById("cart-items");
+    const elCartTotal = document.getElementById("cart-total");
+    const btnCart = document.getElementById("btn-cart");
+    const btnConfirm = document.getElementById("btn-confirm");
+
+    // Render productos
+    PRODUCTS.forEach(p=>{
+      const div=document.createElement("div");
+      div.className="border rounded-lg overflow-hidden";
+      div.innerHTML=`<img src="${p.image}" class="w-full h-40 object-cover">
+        <div class="p-3">
+          <div class="font-bold">${p.name}</div>
+          <div>${CURRENCY(p.price)}</div>
+          <button class="mt-2 w-full bg-orange-500 text-white py-1 rounded-lg">Agregar</button>
+        </div>`;
+      div.querySelector("button").onclick=()=>addToCart(p);
+      elProducts.appendChild(div);
+    });
+
+    function addToCart(p){
+      const i=cart.find(x=>x.id===p.id);
+      if(i){i.qty++;} else {cart.push({...p,qty:1});}
+      updateCart();
+    }
+
+    function updateCart(){
+      if(cart.length===0){elCart.classList.add("hidden");btnCart.textContent="Carrito (0)";return;}
+      elCart.classList.remove("hidden");
+      btnCart.textContent="Carrito ("+cart.reduce((s,i)=>s+i.qty,0)+")";
+      elCartItems.innerHTML=cart.map(i=>${i.qty}x ${i.name} - ${CURRENCY(i.price*i.qty)}).join("<br>");
+      elCartTotal.textContent="Total: "+CURRENCY(cart.reduce((s,i)=>s+i.price*i.qty,0));
+    }
+
+    btnConfirm.onclick=()=>{
+      const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
+      const msg="Hola! Quiero pedir: "+cart.map(i=>${i.qty}x ${i.name}).join(", ")+" . Total: "+CURRENCY(total);
+      window.open("https://wa.me/5491154237871?text="+encodeURIComponent(msg),"_blank");
+    };
+
+    btnCart.onclick=()=>{elCart.classList.toggle("hidden");};
+  </script>
+</body>
 </html>
- 
