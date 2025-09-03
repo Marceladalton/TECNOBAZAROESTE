@@ -2,70 +2,73 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>TecnoBazar Oeste</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .producto { border: 1px solid #ccc; padding: 10px; margin: 10px; }
-    #carrito { margin-top: 20px; border-top: 2px solid #000; padding-top: 10px; }
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;color:#111}
+    header{position:sticky;top:0;display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid #ddd;background:#fff}
+    header h1{font-size:18px;margin:0;font-weight:700}
+    header a, .btn{padding:8px 12px;border:1px solid #111;border-radius:10px;text-decoration:none;color:#111}
+    .container{max-width:1000px;margin:0 auto;padding:16px}
+    .grid{display:grid;gap:16px;grid-template-columns:1fr}
+    @media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media(min-width:1000px){.grid{grid-template-columns:repeat(3,1fr)}}
+    .card{border:1px solid #ddd;border-radius:12px;overflow:hidden;background:#fff}
+    .card img{display:block;width:100%;height:180px;object-fit:cover;background:#f5f5f5}
+    .card .body{padding:12px}
+    .card .name{font-weight:700;margin-bottom:4px}
+    .card .price{margin:6px 0 10px 0;font-size:18px}
+    .cta{margin:24px 0;text-align:center}
+    .cta a{display:inline-block;padding:12px 16px;border-radius:12px;background:#25D366;border:1px solid #1e9e51;color:#fff;font-weight:700;text-decoration:none}
+    footer{border-top:1px solid #eee;margin-top:24px;padding:16px;text-align:center;color:#777;font-size:12px}
   </style>
 </head>
 <body>
-  <h1>TecnoBazar Oeste</h1>
-  <a href="https://www.instagram.com/tecnobazar.oeste" target="_blank">Instagram</a> |
-  <a href="https://wa.me/5491154237871" target="_blank">WhatsApp</a>
+  <header>
+    <h1>TecnoBazar Oeste</h1>
+    <a href="https://www.instagram.com/tecnobazar.oeste" target="_blank" rel="noreferrer" class="btn">Instagram</a>
+    <a href="https://wa.me/5491154237871" target="_blank" rel="noreferrer" class="btn">WhatsApp</a>
+  </header>
 
-  <h2>Productos</h2>
-  <div id="productos"></div>
+  <main class="container">
+    <p>Elegí tu producto y escribinos por WhatsApp para coordinar el pedido y el pago (Transferencia o Mercado Pago, alias: <b>DISTRIBUIDORA-MyG</b>).</p>
 
-  <div id="carrito">
-    <h2>Carrito</h2>
-    <div id="lista"></div>
-    <div id="total"></div>
-    <button onclick="confirmar()">Confirmar por WhatsApp</button>
-  </div>
+    <div class="grid">
+      <!-- Producto 1 -->
+      <div class="card">
+        <img src="https://placehold.co/600x400?text=Parlante+con+manija" alt="Parlante con manija">
+        <div class="body">
+          <div class="name">Parlante con manija</div>
+          <div class="price">$15.900</div>
+          <a class="btn" href="https://wa.me/5491154237871?text=Hola!%20Quiero%20el%20Parlante%20con%20manija%20de%20$15.900" target="_blank">Pedir por WhatsApp</a>
+        </div>
+      </div>
+      <!-- Producto 2 -->
+      <div class="card">
+        <img src="https://placehold.co/600x400?text=Parlante+pileta%2Fba%C3%B1o" alt="Parlante pileta/baño">
+        <div class="body">
+          <div class="name">Parlante pileta/baño</div>
+          <div class="price">$8.000</div>
+          <a class="btn" href="https://wa.me/5491154237871?text=Hola!%20Quiero%20el%20Parlante%20pileta%2Fba%C3%B1o%20de%20$8.000" target="_blank">Pedir por WhatsApp</a>
+        </div>
+      </div>
+      <!-- Producto 3 -->
+      <div class="card">
+        <img src="https://placehold.co/600x400?text=Auriculares+Bear+C-009" alt="Auriculares Bear C-009">
+        <div class="body">
+          <div class="name">Auriculares Bear C-009</div>
+          <div class="price">$12.000</div>
+          <a class="btn" href="https://wa.me/5491154237871?text=Hola!%20Quiero%20los%20Auriculares%20Bear%20C-009%20de%20$12.000" target="_blank">Pedir por WhatsApp</a>
+        </div>
+      </div>
+    </div>
 
-<script>
-  const productos = [
-    {id:1, nombre:"Parlante con manija", precio:15900},
-    {id:2, nombre:"Parlante pileta/baño", precio:8000},
-    {id:3, nombre:"Auriculares Bear C-009", precio:12000}
-  ];
-  let carrito = [];
+    <div class="cta">
+      <a href="https://wa.me/5491154237871?text=Hola!%20Vengo%20de%20la%20web%20y%20quiero%20consultar%20por%20un%20producto." target="_blank">Consultar por WhatsApp</a>
+    </div>
+  </main>
 
-  const divProductos = document.getElementById("productos");
-  productos.forEach(p=>{
-    const d=document.createElement("div");
-    d.className="producto";
-    d.innerHTML=`<b>${p.nombre}</b><br>$${p.precio}<br>
-      <button onclick="agregar(${p.id})">Agregar</button>`;
-    divProductos.appendChild(d);
-  });
-
-  function agregar(id){
-    const p = productos.find(x=>x.id===id);
-    const i = carrito.find(x=>x.id===id);
-    if(i){ i.cant++; } else { carrito.push({...p, cant:1}); }
-    mostrar();
-  }
-
-  function mostrar(){
-    const divLista=document.getElementById("lista");
-    const divTotal=document.getElementById("total");
-    divLista.innerHTML="";
-    let total=0;
-    carrito.forEach(i=>{
-      divLista.innerHTML += ${i.cant}x ${i.nombre} - $${i.precio*i.cant}<br>;
-      total += i.precio*i.cant;
-    });
-    divTotal.innerHTML="Total: $"+total;
-  }
-
-  function confirmar(){
-    let total=carrito.reduce((s,i)=>s+i.precio*i.cant,0);
-    let msg="Hola! Quiero pedir: "+carrito.map(i=>${i.cant}x ${i.nombre}).join(", ")+" . Total: $"+total;
-    window.open("https://wa.me/5491154237871?text="+encodeURIComponent(msg),"_blank");
-  }
-</script>
+  <footer>© <span id="y"></span> TecnoBazar Oeste</footer>
+  <script>document.getElementById('y').textContent=new Date().getFullYear();</script>
 </body>
 </html>
