@@ -24,6 +24,7 @@
 
   <!-- Catálogo -->
   <main class="container p-6">
+    <div id="msg" class="text-sm text-neutral-500 mb-3">Cargando productos…</div>
     <div id="products" class="grid"></div>
   </main>
 
@@ -37,57 +38,58 @@
   </div>
 
   <script>
-    const CURRENCY = n => new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(n);
+    // Esperar a que el HTML esté listo
+    window.addEventListener('DOMContentLoaded', () => {
+      const CURRENCY = n => new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(n);
 
-    const PRODUCTS = [
-      { id:"p1", name:"Parlante con manija", price:15900, image:"https://placehold.co/300x200?text=Parlante+manija" },
-      { id:"p2", name:"Parlante pileta/baño", price:8000, image:"https://placehold.co/300x200?text=Parlante+pileta" },
-      { id:"p3", name:"Auriculares Bear C-009", price:12000, image:"https://placehold.co/300x200?text=Auriculares+Bear" }
-    ];
+      // Productos de ejemplo (después cambiamos por los tuyos)
+      const PRODUCTS = [
+        { id:"p1", name:"Parlante con manija",     price:15900, image:"https://placehold.co/300x200?text=Parlante+manija" },
+        { id:"p2", name:"Parlante pileta/baño",    price:8000,  image:"https://placehold.co/300x200?text=Parlante+pileta" },
+        { id:"p3", name:"Auriculares Bear C-009",  price:12000, image:"https://placehold.co/300x200?text=Auriculares+Bear" }
+      ];
 
-    const cart = [];
-    const elProducts = document.getElementById("products");
-    const elCart = document.getElementById("cart");
-    const elCartItems = document.getElementById("cart-items");
-    const elCartTotal = document.getElementById("cart-total");
-    const btnCart = document.getElementById("btn-cart");
-    const btnConfirm = document.getElementById("btn-confirm");
+      const cart = [];
+      const elProducts  = document.getElementById("products");
+      const elCart      = document.getElementById("cart");
+      const elCartItems = document.getElementById("cart-items");
+      const elCartTotal = document.getElementById("cart-total");
+      const btnCart     = document.getElementById("btn-cart");
+      const btnConfirm  = document.getElementById("btn-confirm");
+      const elMsg       = document.getElementById("msg");
 
-    // Render productos
-    PRODUCTS.forEach(p=>{
-      const div=document.createElement("div");
-      div.className="border rounded-lg overflow-hidden";
-      div.innerHTML=`<img src="${p.image}" class="w-full h-40 object-cover">
-        <div class="p-3">
-          <div class="font-bold">${p.name}</div>
-          <div>${CURRENCY(p.price)}</div>
-          <button class="mt-2 w-full bg-orange-500 text-white py-1 rounded-lg">Agregar</button>
-        </div>`;
-      div.querySelector("button").onclick=()=>addToCart(p);
-      elProducts.appendChild(div);
-    });
+      try {
+        renderProducts();
+        updateCart();
+        elMsg.textContent = ""; // limpiar mensaje
+      } catch (e) {
+        console.error(e);
+        elMsg.textContent = "No se pudo cargar el catálogo. Recargá la página o avisame y lo vemos.";
+      }
 
-    function addToCart(p){
-      const i=cart.find(x=>x.id===p.id);
-      if(i){i.qty++;} else {cart.push({...p,qty:1});}
-      updateCart();
-    }
+      function renderProducts(){
+        elProducts.innerHTML = "";
+        PRODUCTS.forEach(p=>{
+          const card = document.createElement("div");
+          card.className = "border rounded-lg overflow-hidden";
+          card.innerHTML = `
+            <img src="${p.image}" alt="${p.name}" class="w-full h-40 object-cover">
+            <div class="p-3">
+              <div class="font-bold">${p.name}</div>
+              <div>${CURRENCY(p.price)}</div>
+              <button class="mt-2 w-full bg-orange-500 text-white py-1 rounded-lg">Agregar</button>
+            </div>`;
+          card.querySelector("button").onclick = () => addToCart(p);
+          elProducts.appendChild(card);
+        });
+      }
 
-    function updateCart(){
-      if(cart.length===0){elCart.classList.add("hidden");btnCart.textContent="Carrito (0)";return;}
-      elCart.classList.remove("hidden");
-      btnCart.textContent="Carrito ("+cart.reduce((s,i)=>s+i.qty,0)+")";
-      elCartItems.innerHTML=cart.map(i=>${i.qty}x ${i.name} - ${CURRENCY(i.price*i.qty)}).join("<br>");
-      elCartTotal.textContent="Total: "+CURRENCY(cart.reduce((s,i)=>s+i.price*i.qty,0));
-    }
+      function addToCart(p){
+        const i = cart.find(x=>x.id===p.id);
+        if(i){ i.qty++; } else { cart.push({...p, qty:1}); }
+        updateCart();
+      }
 
-    btnConfirm.onclick=()=>{
-      const total=cart.reduce((s,i)=>s+i.price*i.qty,0);
-      const msg="Hola! Quiero pedir: "+cart.map(i=>${i.qty}x ${i.name}).join(", ")+" . Total: "+CURRENCY(total);
-      window.open("https://wa.me/5491154237871?text="+encodeURIComponent(msg),"_blank");
-    };
-
-    btnCart.onclick=()=>{elCart.classList.toggle("hidden");};
-  </script>
-</body>
-</html>
+      function updateCart(){
+        const count = cart.reduce((s,i)=>s+i.qty,0);
+        btnCart.textContent = "Carrito ("+count+")";
