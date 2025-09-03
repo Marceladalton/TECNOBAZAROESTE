@@ -4,92 +4,68 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TecnoBazar Oeste</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .container{max-width:1100px;margin:0 auto}
-    .grid{display:grid;gap:20px}
-    @media(min-width:640px){.grid{grid-template-columns:repeat(2,1fr)}}
-    @media(min-width:1024px){.grid{grid-template-columns:repeat(3,1fr)}}
-    .hidden{display:none}
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .producto { border: 1px solid #ccc; padding: 10px; margin: 10px; }
+    #carrito { margin-top: 20px; border-top: 2px solid #000; padding-top: 10px; }
   </style>
 </head>
-<body class="bg-white text-neutral-900">
-  <!-- Header -->
-  <header class="sticky top-0 bg-white border-b p-4 flex gap-2 items-center">
-    <h1 class="font-bold text-lg">TecnoBazar Oeste</h1>
-    <a href="https://www.instagram.com/tecnobazar.oeste" target="_blank" class="ml-auto px-3 py-1 border rounded-lg">Instagram</a>
-    <a href="https://wa.me/5491154237871" target="_blank" class="px-3 py-1 border rounded-lg">WhatsApp</a>
-    <button id="btn-cart" class="px-3 py-1 bg-black text-white rounded-lg">Carrito (0)</button>
-  </header>
+<body>
+  <h1>TecnoBazar Oeste</h1>
+  <a href="https://www.instagram.com/tecnobazar.oeste" target="_blank">Instagram</a> |
+  <a href="https://wa.me/5491154237871" target="_blank">WhatsApp</a>
 
-  <!-- Catálogo -->
-  <main class="container p-6">
-    <div id="msg" class="text-sm text-neutral-500 mb-3">Cargando productos…</div>
-    <div id="products" class="grid"></div>
-  </main>
+  <h2>Productos</h2>
+  <div id="productos"></div>
 
-  <!-- Carrito -->
-  <div id="cart" class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 hidden">
-    <div id="cart-items" class="text-sm"></div>
-    <div class="flex items-center mt-2">
-      <div id="cart-total" class="font-bold text-lg"></div>
-      <button id="btn-confirm" class="ml-auto px-3 py-1 bg-green-600 text-white rounded-lg">Confirmar por WhatsApp</button>
-    </div>
+  <div id="carrito">
+    <h2>Carrito</h2>
+    <div id="lista"></div>
+    <div id="total"></div>
+    <button onclick="confirmar()">Confirmar por WhatsApp</button>
   </div>
 
-  <script>
-    // Esperar a que el HTML esté listo
-    window.addEventListener('DOMContentLoaded', () => {
-      const CURRENCY = n => new Intl.NumberFormat("es-AR",{style:"currency",currency:"ARS",maximumFractionDigits:0}).format(n);
+<script>
+  const productos = [
+    {id:1, nombre:"Parlante con manija", precio:15900},
+    {id:2, nombre:"Parlante pileta/baño", precio:8000},
+    {id:3, nombre:"Auriculares Bear C-009", precio:12000}
+  ];
+  let carrito = [];
 
-      // Productos de ejemplo (después cambiamos por los tuyos)
-      const PRODUCTS = [
-        { id:"p1", name:"Parlante con manija",     price:15900, image:"https://placehold.co/300x200?text=Parlante+manija" },
-        { id:"p2", name:"Parlante pileta/baño",    price:8000,  image:"https://placehold.co/300x200?text=Parlante+pileta" },
-        { id:"p3", name:"Auriculares Bear C-009",  price:12000, image:"https://placehold.co/300x200?text=Auriculares+Bear" }
-      ];
+  const divProductos = document.getElementById("productos");
+  productos.forEach(p=>{
+    const d=document.createElement("div");
+    d.className="producto";
+    d.innerHTML=`<b>${p.nombre}</b><br>$${p.precio}<br>
+      <button onclick="agregar(${p.id})">Agregar</button>`;
+    divProductos.appendChild(d);
+  });
 
-      const cart = [];
-      const elProducts  = document.getElementById("products");
-      const elCart      = document.getElementById("cart");
-      const elCartItems = document.getElementById("cart-items");
-      const elCartTotal = document.getElementById("cart-total");
-      const btnCart     = document.getElementById("btn-cart");
-      const btnConfirm  = document.getElementById("btn-confirm");
-      const elMsg       = document.getElementById("msg");
+  function agregar(id){
+    const p = productos.find(x=>x.id===id);
+    const i = carrito.find(x=>x.id===id);
+    if(i){ i.cant++; } else { carrito.push({...p, cant:1}); }
+    mostrar();
+  }
 
-      try {
-        renderProducts();
-        updateCart();
-        elMsg.textContent = ""; // limpiar mensaje
-      } catch (e) {
-        console.error(e);
-        elMsg.textContent = "No se pudo cargar el catálogo. Recargá la página o avisame y lo vemos.";
-      }
+  function mostrar(){
+    const divLista=document.getElementById("lista");
+    const divTotal=document.getElementById("total");
+    divLista.innerHTML="";
+    let total=0;
+    carrito.forEach(i=>{
+      divLista.innerHTML += ${i.cant}x ${i.nombre} - $${i.precio*i.cant}<br>;
+      total += i.precio*i.cant;
+    });
+    divTotal.innerHTML="Total: $"+total;
+  }
 
-      function renderProducts(){
-        elProducts.innerHTML = "";
-        PRODUCTS.forEach(p=>{
-          const card = document.createElement("div");
-          card.className = "border rounded-lg overflow-hidden";
-          card.innerHTML = `
-            <img src="${p.image}" alt="${p.name}" class="w-full h-40 object-cover">
-            <div class="p-3">
-              <div class="font-bold">${p.name}</div>
-              <div>${CURRENCY(p.price)}</div>
-              <button class="mt-2 w-full bg-orange-500 text-white py-1 rounded-lg">Agregar</button>
-            </div>`;
-          card.querySelector("button").onclick = () => addToCart(p);
-          elProducts.appendChild(card);
-        });
-      }
-
-      function addToCart(p){
-        const i = cart.find(x=>x.id===p.id);
-        if(i){ i.qty++; } else { cart.push({...p, qty:1}); }
-        updateCart();
-      }
-
-      function updateCart(){
-        const count = cart.reduce((s,i)=>s+i.qty,0);
-        btnCart.textContent = "Carrito ("+count+")";
+  function confirmar(){
+    let total=carrito.reduce((s,i)=>s+i.precio*i.cant,0);
+    let msg="Hola! Quiero pedir: "+carrito.map(i=>${i.cant}x ${i.nombre}).join(", ")+" . Total: $"+total;
+    window.open("https://wa.me/5491154237871?text="+encodeURIComponent(msg),"_blank");
+  }
+</script>
+</body>
+</html>
